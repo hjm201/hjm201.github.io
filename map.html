@@ -33,16 +33,28 @@ p{
 }
 
 .shape{
-    width:20px;
-    height:20px;
-    opacity:0.5;
+    width:26px;
+    height:42.5px;
     position: absolute;
     left:50%;
     top:50%;
-    background-color: red;
-    border-radius: 50%;
     transform: translate(-50%, -50%);
-    z-index: 100
+    z-index: 100;
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADQAAABVCAMAAAAxDjcmAAAA9lBMVEUAAAAyoIr///8yoIs4spo1qJIyoIs4oYwyoIkzoIo4rpY3q5Q4rZUyoIr09PQzoIv///8zoIoyoIozn4syoYv///8zopA1pY81oI45qo4WFhb///9gYGD///8REREzoI7///88vKMynYj///87uaGL18g5tJxxzrzx+vjZ8u1Kwaqk39T1+/pbx7J20L7c8+5szbo/vaQ7vKM7u6I4r5hCvqXp+PXl9vPe8++659+35t1SxK0eHh4YGBj5/fy96ODV8Ot90sJiybU6tZ0CAgLM7efB6uKy5Nqo4dZoy7iU2syI1seF1cV60cAxmoUsdmee3dGa3M+PFhvrAAAAIXRSTlMA9szE/vXlJPvy+/v46r6umJeOjWdRNzArEufDv6DvRhRpabd5AAACo0lEQVRYw5yW626qQBCA2SwgeImxmrb+aiYLeAGreKNAImrjrZfknPd/mbNYOMERlO6XuL/8wu7szOxIOVQ6LarqmqartNWpSCV4ajc0ZW4ZBoBhWHNFa7Sf7iiPlNSsKWSYWjVCH28olSaRIQeZNAt3+UCqM8hlViUPuUqXKgYUYii0e+08q3W4SV19xs6LLsMdZP0FfUd/h7u86xff6qoylEBWs+eidShFnWZirUBJlP+RrxCjrGSQ9JabVShNtZnkG5mVl2bkJw+pDIiDfSOC9FwLBDD9AXDcYcICspC4Utq1AmnLEkzIUmtzqWFBli/TNJ0lX3qhfSZCktXg8damkGXJEgL4oYekqVaROuhiRxznjS9hgQRKR2rNoeBMRdK8JVHrt5JFJdWALMNXjuPFK0RvMR6WDFXSL6VvluLAYDU+s0GSLmlwwbDHObIPvsKgD7loWAI3BDDZBDiFEt4ejJiJJHdxtT0VSa/sm0t/NptTKoWrTxQIHHIunPiPE6XSBOcRvbpcm4249DGZjHj0zhs7sh6+XJxGEfubnilgY9/3x8xZoDTKSdjVNpG2axbjbXDC4tI4seO6f+BSErjFwgXApYGL0GbbkFfHF/orKkJU7p4HMPQZWy3Xu70fBIcg8Pd7VO6osbg7Gzjhpx3tBt6y33di1qix4BbmDu+2MJFmKdSWRR4AkadG6FETeT5FHmqRkUBk+BAdc8QHKvHRTXxIxOPov3brHQViIIYB6KIDGDdp5hOCz7Hupk7uf5sdsXUggpSj/oGQG8fM/x0VQvRhFlpooYVeQhvRJpHDQQQ/BOQwIoML3WA70W543rCjDaLR0B+jijLOiHMUVAXlFXElkVAvvzPJesoQOQ2HkCZvpTSDa8dlpOOyYa+133X7Af/SL/8UxCy8AAAAAElFTkSuQmCC);
+    background-position: center;
+    background-size: cover;    
+}
+.fix-shap{
+    position: fixed;
+    left: 0;
+    top:0;
+    width:100%;
+    height:40px;
+    text-align: center;
+    color:red;
+    font-size: 12px;
+    z-index: 200;
+    background-color: #f1f1f1;
 }
 </style>
 <script charset="utf-8" src="http://map.qq.com/api/js?v=2.exp&key=3DPBZ-I5JWF-R2PJT-NZFSD-ZSIQK-JABJA&libraries=drawing,geometry,autocomplete,convertor"></script>
@@ -77,7 +89,8 @@ window.onload = function(){
         });
 
         qq.maps.event.addListener(map, 'dragend', function(event) {
-            console.log("地图中心为：" + map.getCenter());
+            //console.log("地图中心为：" + map.getCenter());
+            document.getElementById("txt").innerHTML = "当前经纬度：" + map.getCenter()
         });
 
         /*
@@ -239,11 +252,10 @@ window.onload = function(){
         var index = 1;
         var drive = function(){
             var first = paths[index-1], sec = paths[index];
-            console.log('first=', first, "  sec=", sec);
             var heading = qq.maps.geometry.spherical.computeHeading(first, sec);
             var speed = qq.maps.geometry.spherical.computeDistanceBetween(first, sec);
             var rotation = computeRotaion(heading);
-            //nsole.log('speed =', speed)
+            console.log('speed =', speed)
             console.log('rotation =', rotation)
             speed = Math.round(speed/5*36/10);
             if(speed){
@@ -359,6 +371,6 @@ window.onload = function(){
 <div id="container">
     <div class="shape"></div>
 </div>
-
+<div class="fix-shap" id="txt">移动地图取目标经纬度</div>
 </body>
 </html>
