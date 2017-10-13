@@ -97,7 +97,8 @@ window.onload = function(){
 
         marker = new qq.maps.Marker({
             position: _center,
-            map: map
+            map: map,
+            zIndex: 100
         });
 
         var marker1 = new qq.maps.Marker({
@@ -250,15 +251,15 @@ window.onload = function(){
             }
         };
 
-        // var timer = setInterval(function () {
-        //     console.log('index ='+index+'  paths.length='+paths.length);
-        //     if(index==paths.length){
-        //         clearInterval(timer);
-        //         return;
-        //     }
-        //     drive();
-        //     index++;
-        // }, 5000);
+        var timer = setInterval(function () {
+            console.log('index ='+index+'  paths.length='+paths.length);
+            if(index==paths.length){
+                clearInterval(timer);
+                return;
+            }
+            drive();
+            index++;
+        }, 5000);
 
         //marker.moveTo(paths[5], 60)
         //marker.moveAlong(paths,100)
@@ -279,11 +280,11 @@ window.onload = function(){
 //                  scaleSize = new qq.maps.Size(24, 42),
         function setArrowIcon(marker){
             var size = new qq.maps.Size(10, 10); //marker icon图片大小为18px * 16px, 等比例缩放
-            var anchor = new qq.maps.Point(5, 5); //经纬度点在图标中的位置点
+            var anchor = new qq.maps.Point(2.5, 2.5); //经纬度点在图标中的位置点
             var origin = new qq.maps.Point(0, 0);
             var scaleSize = new qq.maps.Size(5, 5);
             var image = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAAXNSR0IArs4c6QAAAH9JREFUOBHtlcENgCAQBImhDSuiM/rSarQFz9k/4c7kHj7YZF8uo2zkKGZW8YkjugjtxZNC+I4QyRy4esxCqOEHR9RdoAKQeoRGRi9uLpSQ+tSWIlp9Oo1S4j/63JwPzXucvmWAeT85sLxjCCxvUKzeaGCo+YBlyZcjpqk+vQJeyfmXXZ3MtNwAAAAASUVORK5CYII=';
-            var icon = new qq.maps.MarkerImage(image, size, origin, anchor);
+            var icon = new qq.maps.MarkerImage(image, size, origin, anchor,scaleSize);
             marker.setIcon(icon); 
         }
         //画marker
@@ -339,7 +340,7 @@ window.onload = function(){
                 arrowLatLng = spherical.computeOffsetOrigin(pixelEnd, distance/2, heading);
 
                 marker = addMarkers(arrowLatLng.lat, arrowLatLng.lng, defaultOps);
-                rotation = computeRotaion(heading); //由两坐标点之间的航向计算marker要旋转的角度
+                rotation = computeRotaion2(heading); //由两坐标点之间的航向计算marker要旋转的角度
                 marker.setRotation(rotation);
             }
         }
