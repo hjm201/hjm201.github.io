@@ -60,7 +60,8 @@ window.onload = function(){
          var map = new qq.maps.Map(document.getElementById("container"), {
             center: _center,      // 地图的中心地理坐标。
             zoom:16,                                               // 地图的中心地理坐标。
-            disableDefaultUI: true
+            disableDefaultUI: true,
+            draggable:true
         });
         console.log(map);
         // setTimeout(function(){
