@@ -60,7 +60,7 @@ window.onload = function(){
          var map = new qq.maps.Map(document.getElementById("container"), {
             center: _center,      // 地图的中心地理坐标。
             zoom:16,                                               // 地图的中心地理坐标。
-            draggable: false
+            disableDefaultUI: true
         });
         console.log(map);
         // setTimeout(function(){
@@ -97,8 +97,7 @@ window.onload = function(){
 
         marker = new qq.maps.Marker({
             position: _center,
-            map: map,
-            content:'文本标注'  //无效
+            map: map
         });
 
         var marker1 = new qq.maps.Marker({
@@ -106,7 +105,7 @@ window.onload = function(){
             map: map
         });
 
-        var anchor = new qq.maps.Point(12, 0),
+        var anchor = new qq.maps.Point(12, 21),
                  size = new qq.maps.Size(48, 84),
                  origin = new qq.maps.Point(0, 0),
                  scaleSize = new qq.maps.Size(24, 42),
@@ -237,8 +236,10 @@ window.onload = function(){
         //开车,10秒钟更新一个坐标
         var index = 1;
         var drive = function(){
-            var heading = qq.maps.geometry.spherical.computeHeading(paths[index-1],paths[index]);
-            var speed = qq.maps.geometry.spherical.computeDistanceBetween(paths[index-1],paths[index]);
+            var first = paths[index-1], sec = paths[index];
+            console.log('first=', first, "  sec=", sec);
+            var heading = qq.maps.geometry.spherical.computeHeading(first, sec);
+            var speed = qq.maps.geometry.spherical.computeDistanceBetween(first, sec);
             var rotation = computeRotaion(heading);
             //nsole.log('speed =', speed)
             console.log('rotation =', rotation)
@@ -249,16 +250,15 @@ window.onload = function(){
             }
         };
 
-        drive();
-        var timer = setInterval(function () {
-            console.log('index =', index)
-            if(index==paths.length){
-                clearInterval(timer);
-                return;
-            }
-            index++;
-            drive();
-        }, 5000);
+        // var timer = setInterval(function () {
+        //     console.log('index ='+index+'  paths.length='+paths.length);
+        //     if(index==paths.length){
+        //         clearInterval(timer);
+        //         return;
+        //     }
+        //     drive();
+        //     index++;
+        // }, 5000);
 
         //marker.moveTo(paths[5], 60)
         //marker.moveAlong(paths,100)
@@ -269,6 +269,80 @@ window.onload = function(){
             strokeWeight: 8,
             map
         });
+
+        addArrowMarkers(polyline)
+
+
+// var anchor = new qq.maps.Point(12, 21),
+//                  size = new qq.maps.Size(48, 84),
+//                  origin = new qq.maps.Point(0, 0),
+//                  scaleSize = new qq.maps.Size(24, 42),
+        function setArrowIcon(marker){
+            var size = new qq.maps.Size(10, 10); //marker icon图片大小为18px * 16px, 等比例缩放
+            var anchor = new qq.maps.Point(5, 5); //经纬度点在图标中的位置点
+            var origin = new qq.maps.Point(0, 0);
+            var scaleSize = new qq.maps.Size(5, 5);
+            var image = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAAXNSR0IArs4c6QAAAH9JREFUOBHtlcENgCAQBImhDSuiM/rSarQFz9k/4c7kHj7YZF8uo2zkKGZW8YkjugjtxZNC+I4QyRy4esxCqOEHR9RdoAKQeoRGRi9uLpSQ+tSWIlp9Oo1S4j/63JwPzXucvmWAeT85sLxjCCxvUKzeaGCo+YBlyZcjpqk+vQJeyfmXXZ3MtNwAAAAASUVORK5CYII=';
+            var icon = new qq.maps.MarkerImage(image, size, origin, anchor);
+            marker.setIcon(icon); 
+        }
+        //画marker
+        function addMarkers(lat, lng, opts){
+            var position = new qq.maps.LatLng(lat, lng);
+            var defaultOpts = {
+                map: map, //mapInstance为对应的qq map实例
+                position: position,
+                zIndex: 8,
+                visible: true,
+                draggable: false
+            }
+            var options = Object.assign({}, defaultOpts, opts || {});
+            var marker = new qq.maps.Marker(options);
+            setArrowIcon(marker);
+            return marker
+        }
+        //计算线路方向箭头旋转的方向,heading为两个经纬度点之间的航向(两点之间与正北方向的夹角)，其范围为[-180, 180)
+        function computeRotaion2(heading){
+         let rotation;
+          if(heading < 0) {
+            rotation = 270 + heading;
+          }else {
+            rotation = heading - 90;
+          }
+          return rotation
+        }
+        //为polyline添加方向marker
+        function addArrowMarkers(polyline){
+            var defaultOps = {
+                cursor: 'normal',
+                zIndex: polyline.getZIndex() + 1,
+                clickable: false,
+                draggable: true
+            };
+
+            var linePoint = polyline.getPath();//线的经纬度坐标
+            console.log('linePoint', linePoint)
+            var arrowCount= linePoint.length;
+            for(let i = 1; i < arrowCount; i+=2){//不是每两个点之间都画箭头，而是每隔一个间隔画一个箭头
+                let pixelStart = linePoint.getAt(i-1); 
+                let pixelEnd = linePoint.getAt(i);
+                let heading, rotation, arrowLatLng, marker;
+                let spherical = qq.maps.geometry.spherical;
+                let distance = spherical.computeDistanceBetween(pixelStart, pixelEnd); //计算两经纬度坐标件的距离
+
+                if(distance <= 15) {//距离太近小于15m的两经纬度坐标点间不画方向
+                  continue;
+                }
+
+                heading = spherical.computeHeading(pixelStart, pixelEnd);//两经纬度坐标点之间的航向
+                //计算两经纬度坐标点中间位置的经纬度
+                arrowLatLng = spherical.computeOffsetOrigin(pixelEnd, distance/2, heading);
+
+                marker = addMarkers(arrowLatLng.lat, arrowLatLng.lng, defaultOps);
+                rotation = computeRotaion(heading); //由两坐标点之间的航向计算marker要旋转的角度
+                marker.setRotation(rotation);
+            }
+        }
     }
 
     //调用初始化函数地图
